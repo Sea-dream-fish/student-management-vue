@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>16.血型判断</title>
+</head>
+
+<body>
+    <div id="app">
+        A： <input type="text" v-model="typeA">+
+        B： <input type="text" v-model="typeB">=
+        生成的血型： <input type="text" v-model="result">型
+    </div>
+</body>
+<script src="js/vue.js"></script>
+<script>
+    var vm = new Vue({
+        el: '#app',
+        data: {
+            typeA: 'a',
+            typeB: 'b',
+            result: 'o',
+        },
+        methods: {
+
+        },
+        watch: {
+            typeA(type) {
+                let str = type + this.typeB;
+                switch (str) {
+                    case "AB":
+                        this.result = "AB"
+                        break;
+                    case "Ab":
+                        this.result = "A"
+                        break
+                    case "aB":
+                        this.result = "B"
+                        break;
+                    case "ab":
+                        this.result = "o"
+                        break
+                    default:
+                        this.result = "错误"
+                        break
+                }
+            },
+            typeB(type) {
+                let str = this.typeA + type;
+                switch (str) {
+                    case "AB":
+                        this.result = "AB"
+                        break;
+                    case "Ab":
+                        this.result = "A"
+                        break
+                    case "aB":
+                        this.result = "B"
+                        break;
+                    case "ab":
+                        this.result = "o"
+                        break
+                    default:
+                        this.result = "错误"
+                        break
+                }
+            },
+            result(type) {
+                switch (type) {
+                    case "AB":
+                        this.typeA = "A"
+                        this.typeB = "B"
+                        break;
+                    case "A":
+                        this.typeA = "A"
+                        this.typeB = "b"
+                        break
+                    case "B":
+                        this.typeA = "a"
+                        this.typeB = "B"
+                        break;
+                    case "o":
+                        this.typeA = "a"
+                        this.typeB = "b"
+                        break
+                    
+                    default:
+                        this.typeA = "错误"
+                        this.typeB = "错误"
+                        break
+                }
+            },
+        }
+
+    })
+</script>
+
+</html>

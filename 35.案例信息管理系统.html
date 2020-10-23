@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>35.案例信息管理系统</title>
+    <!-- 引入本地下载好的bootstrap样式 -->
+    <link rel="stylesheet" href="../bootstrap-3.3.7-dist/css/bootstrap.min.css">
+    <style>
+        .btn-default {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 视图 -->
+    <div id="app">
+
+        <div class="container">
+
+            <!-- 页头 -->
+            <div class="page-header">
+                <h1 class="text-center">信息管理小系统</h1>
+            </div>
+
+            <!-- 路由导航 -->
+            <div class="row">
+                <div class="col-md-6">
+                    <router-link to="/listData" class="btn btn-default   btn-block">数据列表</router-link>
+                </div>
+                <div class="col-md-6">
+                    <router-link to="/formData" class="btn btn-default   btn-block">表单提交</router-link>
+                </div>
+            </div>
+
+            <!-- 路由显示模块 -->
+            <div>
+                <router-view></router-view>
+            </div>
+        </div>
+
+    </div>
+    <!-- 表单提交template模板 -->
+    <template id="formTemp">
+        <div>
+            <h3 v-show="!isEdit">添加数据</h3>
+            <h3 v-show="isEdit">修改数据</h3>
+            <form class="form-horizontal">
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">姓名</label>
+                    <div class="col-sm-10">
+                        <input v-model="name" type="email" class="form-control" id="exampleInputEmail1"
+                            placeholder="请输入姓名">
+                    </div>
+
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">年龄</label>
+                    <div class="col-sm-10">
+                        <input v-model="age" type="email" class="form-control" id="exampleInputEmail1"
+                            placeholder="请输入年龄">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">学校</label>
+                    <div class="col-sm-10">
+                        <input v-model="school" type="email" class="form-control" id="exampleInputEmail1"
+                            placeholder="请输入学校">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">专业</label>
+                    <div class="col-sm-10">
+                        <input v-model="marjor" type="email" class="form-control" id="exampleInputEmail1"
+                            placeholder="请输入系别">
+                    </div>
+                </div>
+
+
+                <div class="form-group">
+                    <div class="col-sm-10 col-sm-offset-2">
+
+                        <button @click="add" v-show="!isEdit" class="btn btn-defaul" type="button">提交</button>
+                        <button @click="edit" v-show="isEdit" class="btn btn-info" type="button">修改</button>
+                    </div>
+                </div>
+            </form>
+
+        </div>
+
+    </template>
+    <!-- 列表展示template模板 -->
+    <template id="listTemp">
+        <div>
+            <h3>数据列表</h3>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>姓名</th>
+                        <th>年龄</th>
+                        <th>学校</th>
+                        <th>系别</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="item,index in lists">
+                        <td>{{index+1}}</td>
+                        <td>{{item.name}}</td>
+                        <td>{{item.age}}</td>
+                        <td>{{item.school}}</td>
+                        <td>{{item.marjor}}</td>
+                        <th>
+                            <button class="btn btn-danger" @click="move(index)">删除</button>
+                            <button class="btn btn-info" @click="modify(index)">修改</button>
+                        </th>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </template>
+</body>
+<script src="../js/vue.js"></script>
+<script src="../js/vue-router.js"></script>
+<script>
+    // 声明组件
+    // 表单提交路由组件
+    var formData = {
+        template: '#formTemp',
+        data() {
+            return {
+                // 数据是否在编辑
+                isEdit: false,
+                name: '',
+                age: '',
+                school: '',
+                marjor: '',
+                // 路由组件跳转要修改的下标
+                editId: null
+            }
+        },
+        methods: {
+            // 提交数据到数据列表路由组件
+            add() {
+                this.$router.push({
+                    name: 'listData',
+                    params: {
+                        name: this.name,
+                        age: this.age,
+                        school: this.school,
+                        marjor: this.marjor,
+                    }
+                })
+            },
+            edit() {
+                this.$router.push({
+                    name: 'listData',
+                    params: {
+                        name: this.name,
+                        age: this.age,
+                        school: this.school,
+                        marjor: this.marjor,
+                        editId: this.editId
+                    }
+                })
+            }
+
+        },
+        // 在生命周期中接受路由组件跳转的参数
+        created() {
+            //   以防不是从数据列表路由中跳转过来，判断是否有数据传送
+            if ("name" in this.$route.params) {
+                let data = this.$route.params;
+                this.name = data.name;
+                this.age = data.age;
+                this.school = data.school;
+                this.marjor = data.marjor;
+                this.editId = data.editId
+                this.isEdit = true;
+            }
+
+
+        }
+    }
+    // 数据列表路由组件
+    var listData = {
+        template: '#listTemp',
+        data() {
+            return {
+                lists: [
+                    { name: '蔡文姬', age: 18, school: '江西大学', marjor: '音乐系' },
+                    { name: '刘备', age: 26, school: '南京理工大学', marjor: '射击系' },
+                    { name: '曹操', age: 24, school: '北京大学', marjor: '战斗系' },
+                    { name: '小乔', age: 20, school: '山西电子科技大学', marjor: '舞蹈系' },
+                ]
+            }
+        },
+        methods: {
+            // 删除数据
+            move(e) {
+                // 通过传递过来的索引删除数据
+                this.lists.splice(e, 1);
+            },
+            // 提交数据到表单提交路由组件中修改
+            modify(e) {
+                let obj = this.lists[e]
+                // 将记录修改Id写入lists里
+                obj['editId'] = e
+                this.$router.push({
+                    name: 'formData',
+                    params: obj
+
+                })
+
+
+            }
+        },
+        // 在生命周期中接受路由组件跳转的参数
+        created() {
+
+            // 首先，判段sessionStorage是否有数据，如果有则替换
+            // if(sessionStorage['listData']){
+            //     Object.assign(this.lists,JSON.parse(sessionStorage['listData']))
+            // }
+            
+            if(localStorage.getItem('listData')){
+                Object.assign(this.lists,JSON.parse(localStorage.getItem("listData")))
+            }
+
+            //   以防不是从数据列表路由中跳转过来，判断是否有数据传送
+
+            // 如果传递过来的参数有修改的id（editId）代表有修改功能
+            if ('editId' in this.$route.params) {
+                let { editId, ...obj } = this.$route.params
+
+                // 然后替换被修改的对象
+                Object.assign(this.lists[editId], obj)
+            }else if('name' in this.$route.params){
+                this.lists.push(this.$route.params)
+            }
+
+        },
+        // 在销毁生命周期函数中，保存我们要保存的数据
+        beforeDestroy(){
+            console.log("组件被销毁的前一刻")
+            // 通过sessionStorage保存数据
+            sessionStorage.listData = JSON.stringify(this.lists)
+
+            localStorage.setItem("listData",JSON.stringify(this.lists))
+            
+        }
+    }
+
+    // 实例化路由
+    var router = new VueRouter({
+        routes: [
+
+            { path: '/', redirect: '/listData' },
+            { path: '/formData', component: formData, name: 'formData' },
+            { path: '/listData', component: listData, name: 'listData' }
+        ]
+
+    })
+
+    var vm = new Vue({
+        el: '#app',
+        data: {
+
+        },
+        methods: {
+
+        },
+        router
+    })
+
+</script>
+
+</html>

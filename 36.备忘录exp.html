@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>36.备忘录exp</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+
+        #app {
+            width: 300px;
+            margin: 30px auto;
+            padding: 5px 10px;
+            border: 2px solid rgba(206, 108, 193, 0.555);
+            border-radius: 5px;
+
+        }
+        .header{
+            display: flex;
+            width: 100%;
+            height: 25px;
+            border-bottom: 2px solid rgba(230, 89, 211, 0.658);
+            
+        }
+        .header input{
+            /* 沾满整宽 */
+            flex: 1;
+            border: none;            
+            padding-left: 5px;
+            /* 解决高亮 */
+            outline: none;
+            color: #555;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .header span{
+            text-align: center;
+            color: rgba(182, 49, 153, 0.877);
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .content{
+            height: 400px;
+            /* 内容超出则生成滑动 */
+            overflow: auto;
+        }
+        .content .unit{
+            padding: 0px 10px;
+        }
+        .content .unit:hover{
+            background-color: #eee;
+            border-radius: 5px;
+        }
+        .unit:hover .remove{
+            display: grid;
+        }
+        .content .listdata{
+            font-size: 16px;
+            cursor: pointer;
+            /* word-break: break-all;
+            word-wrap: break-word;
+            width: 250px; */
+           /* 在一行内显示，超出部分隐藏 */
+            /* 溢出部分变成省略号 */
+            text-overflow: ellipsis;
+            /* 不换行 */
+            white-space: nowrap;
+            /* 超出部分隐藏 */
+            overflow: hidden;
+            /* 添加相对定位 */
+            position: relative;
+            margin: 3px 0px;
+            
+        }
+        .listdata div{
+            padding: 3px;
+            
+        }
+
+        .content input{
+            font-size: 16px;
+            flex: 1;
+            width: 90%;
+            border: none;
+            padding: 4px;
+        }
+        .content .remove{
+            position: absolute;
+            top: 2px;
+            right: 0px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: #999;
+            text-align: center;
+            line-height: 15px;
+            font-size: 15px;
+            color: white;
+            cursor: pointer;
+            display: inline-block;
+            display: none;
+        }
+
+        .finish {
+            text-decoration: line-through;
+            color: #aaa;
+        }
+
+        .footer{
+            border-top: 1px solid rgba(206, 108, 193, 0.555);
+           padding: 5px 0px;
+            font-size: 12px;
+            color: rgba(182, 49, 153, 0.877);
+            cursor: pointer;
+        }
+        .footer span{
+            margin-right: 8px;
+            font-weight: bold;
+        }
+        .footer span.active{
+            color:rgb(255, 6, 6);
+            
+        }
+        
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <!-- 头部 -->
+        <div class="header">
+            <input type="text" v-model="task.content" placeholder="添加您的日程">
+            <span @click="addTask">+</span>
+        </div>
+
+        <!-- 数据展示 -->
+        <div class="content">
+            <div class="unit" v-for="item,index in loock(num)">                
+                <div @dblclick="edit(index)" class="listdata" :class="{'finish':item.finished}" @click="changeState(item.id)">
+                    <div v-show ="!isShow">{{item.content}}</div>
+                    <input v-show="isShow" type="text" :value="item.content" @blur="blur($event,index)" ref="text">
+                    <span class="remove" @click="remove(index)">x</span>
+                </div>
+            </div>
+        </div>
+        <!-- 地步 -->
+        <div class="footer">
+            <span :class="{'active':num==1}" @click="loock(num=1)">全部</span>
+            <span :class="{'active':num==2}" @click="loock(num=2)">已完成</span>
+            <span :class="{'active':num==3}" @click="loock(num=3)">未完成</span>
+            
+        </div>
+
+    </div>
+</body>
+<script src="../js/vue.js"></script>
+<script src="../js/vue-router.js"></script>
+
+<script>
+
+    var vm = new Vue({
+        el: '#app',
+        data: {
+            task: {
+                content: '',//任务内容
+                finished: false,//未完成
+                deleted: false//未删除
+            },
+            list: [
+                { id:0, content: '打王者', finished: false },
+                { id:1, content: '今天会下雨，记得带伞，出门还要扔垃圾', finished: true },
+                { id:2, content: '带好饭卡，中午去食堂充钱！', finished: false },
+                { id:3, content: '傻妞的开机密码是：“我爱你”，也是我想对一只小懒猪说的', finished: false },
+            ],
+            num: 1,
+            isShow:false,
+
+        },
+        methods: {
+            addTask() {
+                if (this.task.content != "") {
+
+                    this.list.push(this.task)
+
+                    this.task = {
+                        id:new Date().getTime(),
+                        content: '',
+                        finished: false,
+                    }
+                }else{
+                    console.log("请输入内容")
+                }
+            },
+            changeState(e) {
+                // let curState = this.list[e].finished;
+                // this.list[e].finished = !curState
+                this.list = this.list.map(function(item){
+                    if(item.id ==e){
+                        return {...item,finished:!item.finished}
+                    }
+                    return item;
+                })
+            },
+            remove(e) {
+                this.list.splice(e, 1)
+            },
+            loock(e) {
+                switch (e) {
+                    case 1: return this.list
+                    case 2:
+                        // 判断是否完成
+                        // return this.list.filter(function (item) {
+                        //     if (item.finished == true) {
+                        //         return item;
+                        //     }
+                        // })
+                        // 简写
+                        return this.list.filter(_ => _.finished==true)
+                    case 3:                        
+                        return this.list.filter(_ => _.finished==false)
+
+                }
+            },
+            edit(e){
+                this.isShow =true;
+                this.$nextTick(()=>{
+                    let text =this.$refs.text[e].focus()
+                })
+                
+            },
+            // 失去焦点监听事件
+            blur(evt,index){
+                this.list[index].content = evt.target.value;
+                this.list[index].finished = false;
+                this.isShow = false
+
+            }
+
+        }
+    })
+</script>
+
+</html>
